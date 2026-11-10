@@ -1,0 +1,35 @@
+Buatkan aplikasi untuk mengelola data Kendaraan Dinas Operasional (KDO) milik Perangkat Daerah sebagai bagian dari pengelolaan Barang Milik Daerah (BMD), tujuan untuk membantu proses pendataan kendaraan dinas, guna mengetahui kondisi kendaraan, serta mencatat pegawai yang bertanggung jawab atas penggunaannya. 
+
+Dalam pembuatan aplikasi, terdapat tiga entitas utama yang harus dikelola : 
+1. Kendaraan Dinas Operasional (KDO)
+   Data kendaraan dinas yang meliputi : 
+   - Nomor polisi kendaraan 
+   - Merek kendaraan 
+   - Tipe atau model kendaraan 
+   - Tahun produksi 
+   - Warna kendaraan 
+   - Kondisi atau status kendaraan (Baik, Rusak Ringan, Rusak Berat)
+
+2. Pegawai Negeri Sipil (PNS) 
+   Data pegawai yang menjadi penanggung jawab kendaraan, meliputi : 
+   - Nama pegawai 
+   - NIP
+   - Jabatan 
+   - Golongan 
+
+3. Perangkat Daerah (PD) 
+   Data instansi yang menggunakan atau memiliki kendaraan dinas, misalnya : 
+   - Dinas Pendidikan 
+   - Dinas Kesehatan 
+   - Dinas Pekerjaan Umum dan Penataan Ruang (PUPR) 
+
+Sebagai fitur utama : 
+   - Dashboard aplikasi yang dapat melihat semua menu 
+   - Create   : Menambahkan data baru 
+   - Read     : Menampilkan daftar dan detail data
+   - Update   : Mengubah data yang sudah tersimpan 
+   - Delete   : Menghapus data yang sudah tidak diperlukan 
+   - buatkan akun penanggung jawab yang dapat diakses
+   - buatkan akun admin yang dapat diproses
+   - pengaturan akun yang bisa diubah sama admin
+   - dapat menyimpan database 
