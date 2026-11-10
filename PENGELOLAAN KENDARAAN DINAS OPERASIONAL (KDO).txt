@@ -1,35 +1,1654 @@
-Buatkan aplikasi untuk mengelola data Kendaraan Dinas Operasional (KDO) milik Perangkat Daerah sebagai bagian dari pengelolaan Barang Milik Daerah (BMD), tujuan untuk membantu proses pendataan kendaraan dinas, guna mengetahui kondisi kendaraan, serta mencatat pegawai yang bertanggung jawab atas penggunaannya. 
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Informasi Pengelolaan Kendaraan Dinas Operasional (SIM-KDO)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            800: '#0c4a6e',
+                            900: '#0a3651',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar for tables & sidebars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col font-sans text-gray-800 antialiased selection:bg-brand-500 selection:text-white">
 
-Dalam pembuatan aplikasi, terdapat tiga entitas utama yang harus dikelola : 
-1. Kendaraan Dinas Operasional (KDO)
-   Data kendaraan dinas yang meliputi : 
-   - Nomor polisi kendaraan 
-   - Merek kendaraan 
-   - Tipe atau model kendaraan 
-   - Tahun produksi 
-   - Warna kendaraan 
-   - Kondisi atau status kendaraan (Baik, Rusak Ringan, Rusak Berat)
+    <!-- LOGIN SCREEN MODAL -->
+    <div id="loginModal" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75 backdrop-blur-sm transition-opacity hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 m-4 transform transition-all border border-gray-100">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-brand-50 text-brand-600 mb-4 shadow-inner">
+                    <i class="fa-solid fa-car-side text-3xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900">SIM-KDO BMD</h2>
+                <p class="text-sm text-gray-500 mt-1">Sistem Pengelolaan Kendaraan Dinas Operasional</p>
+            </div>
 
-2. Pegawai Negeri Sipil (PNS) 
-   Data pegawai yang menjadi penanggung jawab kendaraan, meliputi : 
-   - Nama pegawai 
-   - NIP
-   - Jabatan 
-   - Golongan 
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">Username / NIP</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fa-solid fa-user"></i>
+                        </span>
+                        <input type="text" id="loginUsername" required class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none transition text-sm" placeholder="Masukkan username atau NIP">
+                    </div>
+                </div>
 
-3. Perangkat Daerah (PD) 
-   Data instansi yang menggunakan atau memiliki kendaraan dinas, misalnya : 
-   - Dinas Pendidikan 
-   - Dinas Kesehatan 
-   - Dinas Pekerjaan Umum dan Penataan Ruang (PUPR) 
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">Kata Sandi</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input type="password" id="loginPassword" required class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white outline-none transition text-sm" placeholder="••••••••">
+                    </div>
+                </div>
 
-Sebagai fitur utama : 
-   - Dashboard aplikasi yang dapat melihat semua menu 
-   - Create   : Menambahkan data baru 
-   - Read     : Menampilkan daftar dan detail data
-   - Update   : Mengubah data yang sudah tersimpan 
-   - Delete   : Menghapus data yang sudah tidak diperlukan 
-   - buatkan akun penanggung jawab yang dapat diakses
-   - buatkan akun admin yang dapat diproses
-   - pengaturan akun yang bisa diubah sama admin
-   - dapat menyimpan database 
+                <button type="submit" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl shadow-lg shadow-brand-500/30 transition duration-200 flex items-center justify-center space-x-2 text-sm">
+                    <span>Masuk ke Sistem</span>
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                </button>
+            </form>
+
+            <!-- Quick Demo Login Helpers -->
+            <div class="mt-8 pt-6 border-t border-gray-100">
+                <p class="text-xs text-center text-gray-400 font-medium mb-3">AKUN DEMO CEPAT</p>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="quickLogin('admin', 'admin123')" class="p-2.5 text-xs text-left border border-gray-200 hover:border-brand-500 hover:bg-brand-50/50 rounded-xl transition flex flex-col">
+                        <span class="font-semibold text-gray-700">Administrator</span>
+                        <span class="text-gray-400 text-[10px]">admin / admin123</span>
+                    </button>
+                    <button onclick="quickLogin('198503122010011002', 'user123')" class="p-2.5 text-xs text-left border border-gray-200 hover:border-brand-500 hover:bg-brand-50/50 rounded-xl transition flex flex-col">
+                        <span class="font-semibold text-gray-700">Penanggung Jawab</span>
+                        <span class="text-gray-400 text-[10px]">NIP / user123</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP WRAPPER -->
+    <div id="mainApp" class="flex-1 flex flex-col md:flex-row min-h-screen overflow-hidden">
+
+        <!-- SIDEBAR -->
+        <aside id="sidebar" class="w-full md:w-64 bg-slate-900 text-slate-300 flex-shrink-0 flex flex-col transition-all duration-300 z-30">
+            <!-- Brand Logo -->
+            <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center font-bold shadow-lg shadow-brand-600/30">
+                        <i class="fa-solid fa-car"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-white text-base leading-tight tracking-wide">SIM-KDO</h1>
+                        <span class="text-[10px] uppercase font-semibold text-brand-400 tracking-wider">Aset Perangkat Daerah</span>
+                    </div>
+                </div>
+                <button onclick="toggleMobileMenu()" class="md:hidden text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- User Info Sidebar -->
+            <div class="p-4 mx-3 my-3 bg-slate-800/60 rounded-xl border border-slate-700/50 flex items-center space-x-3">
+                <div id="sidebarUserAvatar" class="w-9 h-9 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold text-sm">
+                    A
+                </div>
+                <div class="overflow-hidden flex-1">
+                    <h4 id="sidebarUserName" class="text-sm font-semibold text-white truncate">Administrator</h4>
+                    <span id="sidebarUserRole" class="inline-block px-2 py-0.5 text-[10px] font-medium bg-brand-500/20 text-brand-300 rounded-full">Admin System</span>
+                </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="flex-1 px-3 py-2 space-y-1 overflow-y-auto">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                    <span>Dashboard Interaktif</span>
+                </button>
+
+                <button onclick="switchTab('kdo')" id="nav-kdo" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-truck-pickup w-5 text-center"></i>
+                    <span>Kendaraan Operasional</span>
+                </button>
+
+                <button onclick="switchTab('pns')" id="nav-pns" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-users w-5 text-center"></i>
+                    <span>Data PNS / Penanggung Jawab</span>
+                </button>
+
+                <button onclick="switchTab('pd')" id="nav-pd" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-building w-5 text-center"></i>
+                    <span>Perangkat Daerah (PD)</span>
+                </button>
+
+                <div class="pt-4 mt-4 border-t border-slate-800/80">
+                    <span class="px-4 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Pengaturan & Sistem</span>
+                </div>
+
+                <button onclick="switchTab('users')" id="nav-users" class="nav-btn admin-only w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-sm transition text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-user-gear w-5 text-center"></i>
+                    <span>Manajemen Pengguna</span>
+                </button>
+            </nav>
+
+            <!-- Logout Button -->
+            <div class="p-3 border-t border-slate-800">
+                <button onclick="logout()" class="w-full flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-300 transition text-sm font-medium">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Keluar Aplikasi</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- CONTENT AREA -->
+        <main class="flex-1 flex flex-col bg-slate-50 overflow-y-auto h-screen">
+            
+            <!-- TOP NAVBAR -->
+            <header class="bg-white border-b border-gray-200 sticky top-0 z-20 px-4 py-3 md:px-8 flex items-center justify-between shadow-sm">
+                <div class="flex items-center space-x-4">
+                    <button onclick="toggleMobileMenu()" class="md:hidden text-gray-600 hover:text-gray-900 focus:outline-none">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                    <h2 id="pageTitle" class="text-xl font-bold text-gray-800">Dashboard Utama</h2>
+                </div>
+
+                <!-- Header Right Actions -->
+                <div class="flex items-center space-x-3">
+                    <div class="hidden sm:flex items-center bg-gray-100 rounded-lg p-1 text-xs">
+                        <span class="px-3 py-1 font-medium text-gray-500">Mode Akun:</span>
+                        <span id="currentRoleBadge" class="px-3 py-1 rounded-md font-semibold bg-white shadow-sm text-brand-600">Admin</span>
+                    </div>
+                    
+                    <button onclick="exportSummaryReport()" title="Cetak / Ekspor Laporan Ringkas" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg flex items-center space-x-2 transition">
+                        <i class="fa-solid fa-file-export text-sm"></i>
+                        <span class="hidden sm:inline">Cetak Laporan</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- NOTIFICATION TOAST CONTAINER -->
+            <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+            <!-- VIEW CONTAINER -->
+            <div class="p-4 md:p-8 flex-1 max-w-7xl w-full mx-auto space-y-8">
+
+                <!-- 1. DASHBOARD VIEW -->
+                <section id="view-dashboard" class="view-section space-y-6">
+                    <!-- Stat Cards Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- Total KDO -->
+                        <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex items-center justify-between hover:shadow-md transition">
+                            <div>
+                                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Total KDO</p>
+                                <h3 id="statTotalKdo" class="text-2xl font-bold text-gray-800 mt-1">0</h3>
+                                <p class="text-[11px] text-gray-400 mt-1">Unit Kendaraan Operasional</p>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-car-side"></i>
+                            </div>
+                        </div>
+
+                        <!-- Kondisi Baik -->
+                        <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex items-center justify-between hover:shadow-md transition">
+                            <div>
+                                <p class="text-xs font-medium text-emerald-600 uppercase tracking-wider">Kondisi Baik</p>
+                                <h3 id="statBaik" class="text-2xl font-bold text-gray-800 mt-1">0</h3>
+                                <p class="text-[11px] text-emerald-600 mt-1" id="statBaikPct">0% Siap Operasional</p>
+                            </div>
+                            <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </div>
+                        </div>
+
+                        <!-- Rusak Ringan -->
+                        <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex items-center justify-between hover:shadow-md transition">
+                            <div>
+                                <p class="text-xs font-medium text-amber-600 uppercase tracking-wider">Rusak Ringan</p>
+                                <h3 id="statRusakRingan" class="text-2xl font-bold text-gray-800 mt-1">0</h3>
+                                <p class="text-[11px] text-amber-600 mt-1">Perlu Pemeliharaan</p>
+                            </div>
+                            <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            </div>
+                        </div>
+
+                        <!-- Rusak Berat -->
+                        <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex items-center justify-between hover:shadow-md transition">
+                            <div>
+                                <p class="text-xs font-medium text-rose-600 uppercase tracking-wider">Rusak Berat</p>
+                                <h3 id="statRusakBerat" class="text-2xl font-bold text-gray-800 mt-1">0</h3>
+                                <p class="text-[11px] text-rose-600 mt-1">Usul Penghapusan / Perbaikan</p>
+                            </div>
+                            <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-ban"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Secondary Stats -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-5 text-white flex items-center justify-between shadow-sm">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-xl">
+                                    <i class="fa-solid fa-user-tie"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total PNS Terdata</p>
+                                    <h4 id="statTotalPns" class="text-xl font-bold mt-0.5">0 Pegawai</h4>
+                                </div>
+                            </div>
+                            <button onclick="switchTab('pns')" class="text-xs bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg font-medium transition">Lihat Data</button>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-brand-700 to-brand-900 rounded-2xl p-5 text-white flex items-center justify-between shadow-sm">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-xl">
+                                    <i class="fa-solid fa-building-user"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-medium text-brand-200 uppercase tracking-wider">Perangkat Daerah (PD)</p>
+                                    <h4 id="statTotalPd" class="text-xl font-bold mt-0.5">0 Instansi</h4>
+                                </div>
+                            </div>
+                            <button onclick="switchTab('pd')" class="text-xs bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg font-medium transition">Lihat Data</button>
+                        </div>
+                    </div>
+
+                    <!-- Charts Section -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Chart Kondisi -->
+                        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col">
+                            <h4 class="text-base font-bold text-gray-800 mb-4 flex items-center space-x-2">
+                                <i class="fa-solid fa-chart-pie text-brand-500"></i>
+                                <span>Distribusi Kondisi KDO</span>
+                            </h4>
+                            <div class="flex-1 relative flex items-center justify-center min-h-[240px]">
+                                <canvas id="chartKondisi"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Chart Distribusi Perangkat Daerah -->
+                        <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col">
+                            <h4 class="text-base font-bold text-gray-800 mb-4 flex items-center space-x-2">
+                                <i class="fa-solid fa-chart-column text-brand-500"></i>
+                                <span>Jumlah KDO Per Perangkat Daerah</span>
+                            </h4>
+                            <div class="flex-1 relative min-h-[240px]">
+                                <canvas id="chartPd"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity / KDO Highlight Table -->
+                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="text-base font-bold text-gray-800">Daftar KDO Terbaru</h4>
+                                <p class="text-xs text-gray-500">Ringkasan unit kendaraan operasional yang tercatat</p>
+                            </div>
+                            <button onclick="switchTab('kdo')" class="text-xs text-brand-600 font-semibold hover:underline">Lihat Semua KDO &rarr;</button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="bg-gray-50 text-gray-500 uppercase text-[11px] tracking-wider border-b border-gray-100">
+                                        <th class="p-3 font-semibold">No. Polisi</th>
+                                        <th class="p-3 font-semibold">Merek & Tipe</th>
+                                        <th class="p-3 font-semibold">Perangkat Daerah</th>
+                                        <th class="p-3 font-semibold">Penanggung Jawab</th>
+                                        <th class="p-3 font-semibold">Kondisi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashboardKdoTable" class="divide-y divide-gray-100">
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. KDO MANAGEMENT VIEW -->
+                <section id="view-kdo" class="view-section space-y-5 hidden">
+                    <!-- Action Bar -->
+                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+                        <div class="flex flex-1 flex-col sm:flex-row gap-3 w-full">
+                            <!-- Search -->
+                            <div class="relative flex-1">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </span>
+                                <input type="text" id="kdoSearchInput" onkeyup="renderKdoTable()" placeholder="Cari Nopol, Merek, Tipe..." class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                            </div>
+                            <!-- Filter Kondisi -->
+                            <select id="kdoFilterKondisi" onchange="renderKdoTable()" class="py-2 px-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                                <option value="">-- Semua Kondisi --</option>
+                                <option value="Baik">Baik</option>
+                                <option value="Rusak Ringan">Rusak Ringan</option>
+                                <option value="Rusak Berat">Rusak Berat</option>
+                            </select>
+                            <!-- Filter PD -->
+                            <select id="kdoFilterPd" onchange="renderKdoTable()" class="py-2 px-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none max-w-xs">
+                                <option value="">-- Semua Perangkat Daerah --</option>
+                            </select>
+                        </div>
+
+                        <div class="flex items-center space-x-2 w-full md:w-auto justify-end">
+                            <button onclick="exportKdoCsv()" class="px-3.5 py-2 border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-xl text-sm font-semibold flex items-center space-x-2 transition">
+                                <i class="fa-solid fa-file-csv text-emerald-600"></i>
+                                <span>Ekspor CSV</span>
+                            </button>
+                            <button onclick="openKdoModal()" class="admin-only px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-semibold shadow-md shadow-brand-500/20 flex items-center space-x-2 transition">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>Tambah KDO</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- KDO Table Card -->
+                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="bg-gray-50/80 text-gray-500 uppercase text-[11px] tracking-wider border-b border-gray-100">
+                                        <th class="p-4 font-semibold">No. Polisi</th>
+                                        <th class="p-4 font-semibold">Merek & Tipe</th>
+                                        <th class="p-4 font-semibold">Tahun / Warna</th>
+                                        <th class="p-4 font-semibold">Perangkat Daerah (PD)</th>
+                                        <th class="p-4 font-semibold">Penanggung Jawab (PNS)</th>
+                                        <th class="p-4 font-semibold">Status / Kondisi</th>
+                                        <th class="p-4 font-semibold text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="kdoTableBody" class="divide-y divide-gray-100">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. PNS MANAGEMENT VIEW -->
+                <section id="view-pns" class="view-section space-y-5 hidden">
+                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col sm:flex-row gap-4 items-center justify-between">
+                        <div class="relative flex-1 w-full">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+                            <input type="text" id="pnsSearchInput" onkeyup="renderPnsTable()" placeholder="Cari Nama Pegawai atau NIP..." class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                        </div>
+
+                        <button onclick="openPnsModal()" class="admin-only px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-semibold shadow-md shadow-brand-500/20 flex items-center space-x-2 transition">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Tambah PNS</span>
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="bg-gray-50/80 text-gray-500 uppercase text-[11px] tracking-wider border-b border-gray-100">
+                                        <th class="p-4 font-semibold">NIP</th>
+                                        <th class="p-4 font-semibold">Nama Pegawai</th>
+                                        <th class="p-4 font-semibold">Jabatan</th>
+                                        <th class="p-4 font-semibold">Golongan</th>
+                                        <th class="p-4 font-semibold">KDO Yang Dipegang</th>
+                                        <th class="p-4 font-semibold text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pnsTableBody" class="divide-y divide-gray-100">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. PERANGKAT DAERAH (PD) VIEW -->
+                <section id="view-pd" class="view-section space-y-5 hidden">
+                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col sm:flex-row gap-4 items-center justify-between">
+                        <div class="relative flex-1 w-full">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+                            <input type="text" id="pdSearchInput" onkeyup="renderPdTable()" placeholder="Cari Kode atau Nama Perangkat Daerah..." class="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                        </div>
+
+                        <button onclick="openPdModal()" class="admin-only px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-semibold shadow-md shadow-brand-500/20 flex items-center space-x-2 transition">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Tambah Perangkat Daerah</span>
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="bg-gray-50/80 text-gray-500 uppercase text-[11px] tracking-wider border-b border-gray-100">
+                                        <th class="p-4 font-semibold">Kode PD</th>
+                                        <th class="p-4 font-semibold">Nama Perangkat Daerah</th>
+                                        <th class="p-4 font-semibold">Alamat & Kontak</th>
+                                        <th class="p-4 font-semibold">Jumlah KDO</th>
+                                        <th class="p-4 font-semibold text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pdTableBody" class="divide-y divide-gray-100">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. USER MANAGEMENT VIEW (ADMIN ONLY) -->
+                <section id="view-users" class="view-section space-y-5 hidden">
+                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col sm:flex-row gap-4 items-center justify-between">
+                        <div>
+                            <h3 class="text-base font-bold text-gray-800">Manajemen Akses & Akun Pengguna</h3>
+                            <p class="text-xs text-gray-500">Kelola kredensial akun Admin dan Penanggung Jawab PNS</p>
+                        </div>
+
+                        <button onclick="openUserModal()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-semibold shadow-md shadow-brand-500/20 flex items-center space-x-2 transition">
+                            <i class="fa-solid fa-user-plus"></i>
+                            <span>Tambah Pengguna</span>
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="bg-gray-50/80 text-gray-500 uppercase text-[11px] tracking-wider border-b border-gray-100">
+                                        <th class="p-4 font-semibold">Username / NIP</th>
+                                        <th class="p-4 font-semibold">Nama Lengkap</th>
+                                        <th class="p-4 font-semibold">Role Hak Akses</th>
+                                        <th class="p-4 font-semibold">Terhubung dengan PNS</th>
+                                        <th class="p-4 font-semibold text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userTableBody" class="divide-y divide-gray-100">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ==================== MODALS ==================== -->
+
+    <!-- Modal Form KDO -->
+    <div id="modalKdo" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50 backdrop-blur-sm hidden p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-xl w-full p-6 max-h-[90vh] overflow-y-auto border border-gray-100">
+            <div class="flex justify-between items-center pb-4 mb-4 border-b border-gray-100">
+                <h3 id="modalKdoTitle" class="text-lg font-bold text-gray-800">Tambah Data KDO</h3>
+                <button onclick="closeModal('modalKdo')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="formKdo" onsubmit="saveKdo(event)" class="space-y-4">
+                <input type="hidden" id="kdoId">
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Nomor Polisi *</label>
+                        <input type="text" id="kdoNopol" required placeholder="Contoh: B 1234 RPD" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none uppercase">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Merek Kendaraan *</label>
+                        <input type="text" id="kdoMerek" required placeholder="Contoh: Toyota, Honda, Mitsubishi" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Tipe / Model *</label>
+                        <input type="text" id="kdoTipe" required placeholder="Contoh: Innova Zenix 2.0 V" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Tahun Produksi *</label>
+                        <input type="number" id="kdoTahun" required min="1990" max="2030" placeholder="2022" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Warna Kendaraan</label>
+                        <input type="text" id="kdoWarna" placeholder="Hitam Metasik" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Kondisi Kendaraan *</label>
+                        <select id="kdoKondisi" required class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                            <option value="Baik">Baik</option>
+                            <option value="Rusak Ringan">Rusak Ringan</option>
+                            <option value="Rusak Berat">Rusak Berat</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Perangkat Daerah (PD) *</label>
+                    <select id="kdoPdId" required class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Penanggung Jawab (PNS)</label>
+                    <select id="kdoPnsId" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+
+                <div class="flex justify-end space-x-2 pt-4 border-t border-gray-100">
+                    <button type="button" onclick="closeModal('modalKdo')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-semibold transition">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-semibold transition">Simpan Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Form PNS -->
+    <div id="modalPns" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50 backdrop-blur-sm hidden p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto border border-gray-100">
+            <div class="flex justify-between items-center pb-4 mb-4 border-b border-gray-100">
+                <h3 id="modalPnsTitle" class="text-lg font-bold text-gray-800">Tambah Data PNS</h3>
+                <button onclick="closeModal('modalPns')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="formPns" onsubmit="savePns(event)" class="space-y-4">
+                <input type="hidden" id="pnsOldNip">
+                
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">NIP (Nomor Induk Pegawai) *</label>
+                    <input type="text" id="pnsNip" required placeholder="198503122010011002" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Nama Lengkap Pegawai *</label>
+                    <input type="text" id="pnsNama" required placeholder="Drs. Ahmad Subagja, M.Si" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Jabatan *</label>
+                    <input type="text" id="pnsJabatan" required placeholder="Kepala Bidang Sarana & Prasarana" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Golongan / Pangkat *</label>
+                    <select id="pnsGolongan" required class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                        <option value="IV/e - Pembina Utama">IV/e - Pembina Utama</option>
+                        <option value="IV/d - Pembina Utama Muda">IV/d - Pembina Utama Muda</option>
+                        <option value="IV/c - Pembina Utama Muda">IV/c - Pembina Utama Muda</option>
+                        <option value="IV/b - Pembina Tk. I">IV/b - Pembina Tk. I</option>
+                        <option value="IV/a - Pembina">IV/a - Pembina</option>
+                        <option value="III/d - Penata Tk. I">III/d - Penata Tk. I</option>
+                        <option value="III/c - Penata">III/c - Penata</option>
+                        <option value="III/b - Penata Muda Tk. I">III/b - Penata Muda Tk. I</option>
+                        <option value="III/a - Penata Muda">III/a - Penata Muda</option>
+                    </select>
+                </div>
+
+                <div class="flex justify-end space-x-2 pt-4 border-t border-gray-100">
+                    <button type="button" onclick="closeModal('modalPns')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-semibold transition">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-semibold transition">Simpan Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Form Perangkat Daerah -->
+    <div id="modalPd" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50 backdrop-blur-sm hidden p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto border border-gray-100">
+            <div class="flex justify-between items-center pb-4 mb-4 border-b border-gray-100">
+                <h3 id="modalPdTitle" class="text-lg font-bold text-gray-800">Tambah Perangkat Daerah</h3>
+                <button onclick="closeModal('modalPd')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="formPd" onsubmit="savePd(event)" class="space-y-4">
+                <input type="hidden" id="pdOldKode">
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Kode Perangkat Daerah *</label>
+                    <input type="text" id="pdKode" required placeholder="PD-DISDIK" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none uppercase">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Nama Perangkat Daerah *</label>
+                    <input type="text" id="pdNama" required placeholder="Dinas Pendidikan dan Kebudayaan" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Alamat Kantor</label>
+                    <textarea id="pdAlamat" rows="2" placeholder="Jl. Jend. Sudirman No. 45" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Telepon / Kontak</label>
+                    <input type="text" id="pdKontak" placeholder="(021) 555-1234" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                </div>
+
+                <div class="flex justify-end space-x-2 pt-4 border-t border-gray-100">
+                    <button type="button" onclick="closeModal('modalPd')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-semibold transition">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-semibold transition">Simpan Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Form User (Management) -->
+    <div id="modalUser" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50 backdrop-blur-sm hidden p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto border border-gray-100">
+            <div class="flex justify-between items-center pb-4 mb-4 border-b border-gray-100">
+                <h3 id="modalUserTitle" class="text-lg font-bold text-gray-800">Kelola Akun Pengguna</h3>
+                <button onclick="closeModal('modalUser')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="formUser" onsubmit="saveUser(event)" class="space-y-4">
+                <input type="hidden" id="userOldUsername">
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Username / NIP Login *</label>
+                    <input type="text" id="userUsername" required placeholder="admin / 1985..." class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Nama Tampilan *</label>
+                    <input type="text" id="userNama" required placeholder="Nama Pengguna" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Password <span id="pwdNotice" class="text-gray-400 font-normal">(Kosongkan jika tidak diubah)</span> *</label>
+                    <input type="password" id="userPassword" placeholder="••••••••" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Role Hak Akses *</label>
+                    <select id="userRole" required class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                        <option value="admin">Administrator (Full Access)</option>
+                        <option value="pns">Penanggung Jawab / User PNS (View Only)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Relasi Data PNS (Opsional)</label>
+                    <select id="userPnsId" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none">
+                        <!-- Dynamic option -->
+                    </select>
+                </div>
+
+                <div class="flex justify-end space-x-2 pt-4 border-t border-gray-100">
+                    <button type="button" onclick="closeModal('modalUser')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-semibold transition">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-semibold transition">Simpan Akun</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Detail KDO View -->
+    <div id="modalDetailKdo" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50 backdrop-blur-sm hidden p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 border border-gray-100 space-y-4">
+            <div class="flex justify-between items-start pb-3 border-b border-gray-100">
+                <div>
+                    <span id="detailBadgeKondisi" class="px-2.5 py-1 text-xs font-bold rounded-full bg-emerald-100 text-emerald-700">Baik</span>
+                    <h3 id="detailNopol" class="text-xl font-bold text-gray-800 mt-1">B 1234 RPD</h3>
+                </div>
+                <button onclick="closeModal('modalDetailKdo')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 text-sm">
+                <div class="grid grid-cols-2 gap-2 bg-gray-50 p-3 rounded-xl">
+                    <div>
+                        <span class="text-xs text-gray-400 block">Merek & Model</span>
+                        <span id="detailMerekTipe" class="font-semibold text-gray-800">Toyota Innova</span>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-400 block">Tahun / Warna</span>
+                        <span id="detailTahunWarna" class="font-semibold text-gray-800">2022 / Hitam</span>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-100 pt-2">
+                    <span class="text-xs text-gray-400 block mb-1">Perangkat Daerah Pengguna</span>
+                    <div class="flex items-center space-x-2 text-gray-700 font-medium">
+                        <i class="fa-solid fa-building text-brand-500"></i>
+                        <span id="detailPdNama">Dinas Pendidikan</span>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-100 pt-2">
+                    <span class="text-xs text-gray-400 block mb-1">Penanggung Jawab Kendaraan</span>
+                    <div class="bg-blue-50/50 border border-blue-100 p-3 rounded-xl space-y-1">
+                        <div class="flex items-center space-x-2 text-brand-900 font-bold">
+                            <i class="fa-solid fa-user-tie text-brand-600"></i>
+                            <span id="detailPnsNama">Drs. Ahmad Subagja</span>
+                        </div>
+                        <p id="detailPnsNip" class="text-xs text-gray-500">NIP: 198503122010011002</p>
+                        <p id="detailPnsJabatan" class="text-xs text-gray-600 font-medium">Kabid Sarana & Prasarana (Gol. IV/a)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-3">
+                <button onclick="closeModal('modalDetailKdo')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-semibold">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================== JAVASCRIPT LOGIC ==================== -->
+    <script>
+        // Initial Seed Data
+        const defaultPerangkatDaerah = [
+            { id: 'PD-DISDIK', nama: 'Dinas Pendidikan dan Kebudayaan', alamat: 'Jl. Pemuda No. 12', kontak: '(021) 555-0101' },
+            { id: 'PD-DINKES', nama: 'Dinas Kesehatan', alamat: 'Jl. Kesehatan No. 45', kontak: '(021) 555-0102' },
+            { id: 'PD-PUPR', nama: 'Dinas Pekerjaan Umum & Penataan Ruang', alamat: 'Jl. Pembangunan No. 88', kontak: '(021) 555-0103' },
+            { id: 'PD-DISHUB', nama: 'Dinas Perhubungan', alamat: 'Jl. Raya Terminal No. 01', kontak: '(021) 555-0104' }
+        ];
+
+        const defaultPns = [
+            { nip: '198503122010011002', nama: 'Drs. Ahmad Subagja, M.Si', jabatan: 'Kepala Bidang Sarana & Prasarana', golongan: 'IV/a - Pembina' },
+            { nip: '197908252006042005', nama: 'Dr. H. Bambang Suryono', jabatan: 'Kepala Dinas Kesehatan', golongan: 'IV/c - Pembina Utama Muda' },
+            { nip: '199011042014021001', nama: 'Rian Hidayat, S.T.', jabatan: 'Kasubag Umum & Kepegawaian', golongan: 'III/c - Penata' },
+            { nip: '198205152009032008', nama: 'Siti Rahmawati, S.E.', jabatan: 'Bendahara Barang Milik Daerah', golongan: 'III/d - Penata Tk. I' }
+        ];
+
+        const defaultKdo = [
+            { id: 'KDO-001', nopol: 'B 1001 RPD', merek: 'Toyota', tipe: 'Kijang Innova 2.0 V', tahun: 2021, warna: 'Hitam Metalik', kondisi: 'Baik', pdId: 'PD-DISDIK', pnsNip: '198503122010011002' },
+            { id: 'KDO-002', nopol: 'B 1002 RPD', merek: 'Honda', tipe: 'CR-V 2.0 Turbo', tahun: 2022, warna: 'Putih Mutiara', kondisi: 'Baik', pdId: 'PD-DINKES', pnsNip: '197908252006042005' },
+            { id: 'KDO-003', nopol: 'B 1003 RPD', merek: 'Mitsubishi', tipe: 'Triton Double Cab 4x4', tahun: 2019, warna: 'Silver', kondisi: 'Rusak Ringan', pdId: 'PD-PUPR', pnsNip: '199011042014021001' },
+            { id: 'KDO-004', nopol: 'B 1004 RPD', merek: 'Isuzu', tipe: 'Panther Pick Up', tahun: 2012, warna: 'Biru Tua', kondisi: 'Rusak Berat', pdId: 'PD-DISDIK', pnsNip: '198205152009032008' },
+            { id: 'KDO-005', nopol: 'B 1005 RPD', merek: 'Toyota', tipe: 'Avanza 1.5 G', tahun: 2020, warna: 'Hitam', kondisi: 'Baik', pdId: 'PD-DISHUB', pnsNip: '' }
+        ];
+
+        const defaultUsers = [
+            { username: 'admin', password: 'admin123', nama: 'Administrator BMD', role: 'admin', pnsNip: '' },
+            { username: '198503122010011002', password: 'user123', nama: 'Drs. Ahmad Subagja', role: 'pns', pnsNip: '198503122010011002' }
+        ];
+
+        // Global Application State
+        let db = {
+            pd: [],
+            pns: [],
+            kdo: [],
+            users: []
+        };
+        let currentUser = null;
+        let chartKondisiInstance = null;
+        let chartPdInstance = null;
+
+        // Initialize Application
+        window.onload = function() {
+            loadDatabase();
+            checkAuth();
+        };
+
+        // Load or Initialize LocalStorage
+        function loadDatabase() {
+            const savedPd = localStorage.getItem('simkdo_pd');
+            const savedPns = localStorage.getItem('simkdo_pns');
+            const savedKdo = localStorage.getItem('simkdo_kdo');
+            const savedUsers = localStorage.getItem('simkdo_users');
+
+            db.pd = savedPd ? JSON.parse(savedPd) : defaultPerangkatDaerah;
+            db.pns = savedPns ? JSON.parse(savedPns) : defaultPns;
+            db.kdo = savedKdo ? JSON.parse(savedKdo) : defaultKdo;
+            db.users = savedUsers ? JSON.parse(savedUsers) : defaultUsers;
+
+            saveDatabase();
+        }
+
+        function saveDatabase() {
+            localStorage.setItem('simkdo_pd', JSON.stringify(db.pd));
+            localStorage.setItem('simkdo_pns', JSON.stringify(db.pns));
+            localStorage.setItem('simkdo_kdo', JSON.stringify(db.kdo));
+            localStorage.setItem('simkdo_users', JSON.stringify(db.users));
+        }
+
+        // Authentication & Session
+        function checkAuth() {
+            const sessionUser = sessionStorage.getItem('simkdo_current_user');
+            if (sessionUser) {
+                currentUser = JSON.parse(sessionUser);
+                document.getElementById('loginModal').classList.add('hidden');
+                document.getElementById('mainApp').classList.remove('hidden');
+                setupUserUI();
+                switchTab('dashboard');
+            } else {
+                document.getElementById('loginModal').classList.remove('hidden');
+                document.getElementById('mainApp').classList.add('hidden');
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('loginUsername').value.trim();
+            const p = document.getElementById('loginPassword').value.trim();
+
+            const foundUser = db.users.find(user => (user.username === u || user.pnsNip === u) && user.password === p);
+
+            if (foundUser) {
+                currentUser = foundUser;
+                sessionStorage.setItem('simkdo_current_user', JSON.stringify(currentUser));
+                showToast(`Selamat datang kembali, ${currentUser.nama}!`, 'success');
+                checkAuth();
+            } else {
+                showToast('Username atau password tidak valid!', 'error');
+            }
+        }
+
+        function quickLogin(u, p) {
+            document.getElementById('loginUsername').value = u;
+            document.getElementById('loginPassword').value = p;
+            document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+        }
+
+        function logout() {
+            sessionStorage.removeItem('simkdo_current_user');
+            currentUser = null;
+            showToast('Berhasil keluar dari aplikasi.', 'info');
+            checkAuth();
+        }
+
+        function setupUserUI() {
+            if (!currentUser) return;
+
+            document.getElementById('sidebarUserName').textContent = currentUser.nama;
+            document.getElementById('sidebarUserRole').textContent = currentUser.role === 'admin' ? 'Administrator' : 'Penanggung Jawab';
+            document.getElementById('sidebarUserAvatar').textContent = currentUser.nama.charAt(0).toUpperCase();
+            document.getElementById('currentRoleBadge').textContent = currentUser.role === 'admin' ? 'Administrator' : 'Penanggung Jawab (PNS)';
+
+            // Hide/Show Admin Only elements
+            const adminElements = document.querySelectorAll('.admin-only');
+            adminElements.forEach(el => {
+                if (currentUser.role === 'admin') {
+                    el.classList.remove('hidden');
+                } else {
+                    el.classList.add('hidden');
+                }
+            });
+        }
+
+        // Navigation Tabs Handling
+        function switchTab(tabId) {
+            // Update active state in nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-slate-800', 'text-white');
+                btn.classList.add('text-slate-400');
+            });
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.classList.add('bg-slate-800', 'text-white');
+                activeNav.classList.remove('text-slate-400');
+            }
+
+            // Hide all view sections
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('hidden'));
+
+            // Show current view
+            const currentView = document.getElementById(`view-${tabId}`);
+            if (currentView) currentView.classList.remove('hidden');
+
+            // Titles
+            const titles = {
+                'dashboard': 'Dashboard Interaktif BMD',
+                'kdo': 'Data Kendaraan Dinas Operasional (KDO)',
+                'pns': 'Data Pegawai Negeri Sipil (PNS)',
+                'pd': 'Data Perangkat Daerah (PD)',
+                'users': 'Pengaturan Akun & Hak Akses Pengguna'
+            };
+            document.getElementById('pageTitle').textContent = titles[tabId] || 'SIM-KDO';
+
+            // Refresh UI Views Data
+            if (tabId === 'dashboard') renderDashboard();
+            if (tabId === 'kdo') { populateFilterOptions(); renderKdoTable(); }
+            if (tabId === 'pns') renderPnsTable();
+            if (tabId === 'pd') renderPdTable();
+            if (tabId === 'users') renderUserTable();
+
+            // Close Mobile Drawer if open
+            const sidebar = document.getElementById('sidebar');
+            if (!sidebar.classList.contains('hidden') && window.innerWidth < 768) {
+                sidebar.classList.add('hidden');
+            }
+        }
+
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('hidden');
+        }
+
+        // Toast Notifications
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            const bgColors = {
+                success: 'bg-emerald-600 text-white',
+                error: 'bg-rose-600 text-white',
+                info: 'bg-brand-600 text-white shadow-lg'
+            };
+            const icons = {
+                success: 'fa-circle-check',
+                error: 'fa-circle-exclamation',
+                info: 'fa-circle-info'
+            };
+
+            toast.className = `px-4 py-3 rounded-xl shadow-lg flex items-center space-x-3 text-sm font-medium transition duration-300 transform translate-y-2 pointer-events-auto ${bgColors[type] || bgColors.info}`;
+            toast.innerHTML = `
+                <i class="fa-solid ${icons[type]} text-base"></i>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-y-2'), 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Modal Helpers
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        // ==================== DASHBOARD RENDERER & CHARTS ====================
+        function renderDashboard() {
+            const totalKdo = db.kdo.length;
+            const baik = db.kdo.filter(k => k.kondisi === 'Baik').length;
+            const rusakRingan = db.kdo.filter(k => k.kondisi === 'Rusak Ringan').length;
+            const rusakBerat = db.kdo.filter(k => k.kondisi === 'Rusak Berat').length;
+
+            document.getElementById('statTotalKdo').textContent = totalKdo;
+            document.getElementById('statBaik').textContent = baik;
+            document.getElementById('statRusakRingan').textContent = rusakRingan;
+            document.getElementById('statRusakBerat').textContent = rusakBerat;
+
+            const pctBaik = totalKdo > 0 ? Math.round((baik / totalKdo) * 100) : 0;
+            document.getElementById('statBaikPct').textContent = `${pctBaik}% Kondisi Prima`;
+
+            document.getElementById('statTotalPns').textContent = `${db.pns.length} Pegawai`;
+            document.getElementById('statTotalPd').textContent = `${db.pd.length} Instansi`;
+
+            // Render Highlights Table
+            const tbody = document.getElementById('dashboardKdoTable');
+            tbody.innerHTML = '';
+            
+            // If PNS role, filter to show user's KDO first
+            let displayKdo = db.kdo;
+            if (currentUser && currentUser.role === 'pns') {
+                displayKdo = db.kdo.filter(k => k.pnsNip === currentUser.pnsNip);
+            }
+
+            if (displayKdo.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-400">Belum ada data KDO yang dapat ditampilkan.</td></tr>`;
+            } else {
+                displayKdo.slice(0, 5).forEach(k => {
+                    const pd = db.pd.find(p => p.id === k.pdId) || { nama: '-' };
+                    const pns = db.pns.find(p => p.nip === k.pnsNip) || { nama: 'Belum Ditentukan' };
+                    
+                    const badgeColor = k.kondisi === 'Baik' ? 'bg-emerald-100 text-emerald-700' :
+                                     k.kondisi === 'Rusak Ringan' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700';
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-gray-50/50">
+                            <td class="p-3 font-bold text-gray-800">${k.nopol}</td>
+                            <td class="p-3 font-medium text-gray-700">${k.merek} ${k.tipe}</td>
+                            <td class="p-3 text-gray-600">${pd.nama}</td>
+                            <td class="p-3 text-gray-600">${pns.nama}</td>
+                            <td class="p-3"><span class="px-2.5 py-1 text-xs font-semibold rounded-full ${badgeColor}">${k.kondisi}</span></td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Render Chart 1: Kondisi Pie Chart
+            const ctxKondisi = document.getElementById('chartKondisi').getContext('2d');
+            if (chartKondisiInstance) chartKondisiInstance.destroy();
+            chartKondisiInstance = new Chart(ctxKondisi, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Baik', 'Rusak Ringan', 'Rusak Berat'],
+                    datasets: [{
+                        data: [baik, rusakRingan, rusakBerat],
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 12 } } }
+                    }
+                }
+            });
+
+            // Render Chart 2: Per perangkat daerah
+            const pdLabels = db.pd.map(p => p.nama.length > 20 ? p.nama.substr(0, 20) + '...' : p.nama);
+            const pdCounts = db.pd.map(p => db.kdo.filter(k => k.pdId === p.id).length);
+
+            const ctxPd = document.getElementById('chartPd').getContext('2d');
+            if (chartPdInstance) chartPdInstance.destroy();
+            chartPdInstance = new Chart(ctxPd, {
+                type: 'bar',
+                data: {
+                    labels: pdLabels,
+                    datasets: [{
+                        label: 'Jumlah KDO',
+                        data: pdCounts,
+                        backgroundColor: '#0284c7',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // ==================== KDO MODULE ====================
+        function populateFilterOptions() {
+            const selectFilter = document.getElementById('kdoFilterPd');
+            selectFilter.innerHTML = `<option value="">-- Semua Perangkat Daerah --</option>`;
+            db.pd.forEach(p => {
+                selectFilter.innerHTML += `<option value="${p.id}">${p.nama}</option>`;
+            });
+        }
+
+        function renderKdoTable() {
+            const search = document.getElementById('kdoSearchInput').value.toLowerCase();
+            const filterKondisi = document.getElementById('kdoFilterKondisi').value;
+            const filterPd = document.getElementById('kdoFilterPd').value;
+
+            let filtered = db.kdo.filter(k => {
+                const matchSearch = k.nopol.toLowerCase().includes(search) || 
+                                    k.merek.toLowerCase().includes(search) || 
+                                    k.tipe.toLowerCase().includes(search);
+                const matchKondisi = filterKondisi ? k.kondisi === filterKondisi : true;
+                const matchPd = filterPd ? k.pdId === filterPd : true;
+                return matchSearch && matchKondisi && matchPd;
+            });
+
+            // If user is PNS role, limit view to their own assigned KDO or read only
+            if (currentUser && currentUser.role === 'pns') {
+                filtered = filtered.filter(k => k.pnsNip === currentUser.pnsNip);
+            }
+
+            const tbody = document.getElementById('kdoTableBody');
+            tbody.innerHTML = '';
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-gray-400">Tidak ada data Kendaraan Dinas Operasional yang ditemukan.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(k => {
+                const pd = db.pd.find(p => p.id === k.pdId) || { nama: '-' };
+                const pns = db.pns.find(p => p.nip === k.pnsNip) || { nama: '<span class="text-gray-400 italic">Belum Ada</span>' };
+
+                const badgeColor = k.kondisi === 'Baik' ? 'bg-emerald-100 text-emerald-700' :
+                                 k.kondisi === 'Rusak Ringan' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700';
+
+                const actions = currentUser && currentUser.role === 'admin' ? `
+                    <div class="flex items-center justify-center space-x-2">
+                        <button onclick="viewKdoDetail('${k.id}')" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition" title="Lihat Detail">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                        <button onclick="editKdo('${k.id}')" class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Ubah Data">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button onclick="deleteKdo('${k.id}')" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="Hapus Data">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                ` : `
+                    <div class="flex items-center justify-center">
+                        <button onclick="viewKdoDetail('${k.id}')" class="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold">
+                            Detail
+                        </button>
+                    </div>
+                `;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50/60 transition">
+                        <td class="p-4 font-bold text-gray-900">${k.nopol}</td>
+                        <td class="p-4 font-medium text-gray-800">${k.merek} <span class="text-gray-500 font-normal">${k.tipe}</span></td>
+                        <td class="p-4 text-gray-600 text-xs">${k.tahun} / ${k.warna || '-'}</td>
+                        <td class="p-4 text-gray-700">${pd.nama}</td>
+                        <td class="p-4 text-gray-700">${pns.nama}</td>
+                        <td class="p-4"><span class="px-2.5 py-1 text-xs font-semibold rounded-full ${badgeColor}">${k.kondisi}</span></td>
+                        <td class="p-4 text-center">${actions}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openKdoModal(kdoData = null) {
+            const form = document.getElementById('formKdo');
+            form.reset();
+
+            // Populate PD options
+            const pdSelect = document.getElementById('kdoPdId');
+            pdSelect.innerHTML = `<option value="">-- Pilih Perangkat Daerah --</option>`;
+            db.pd.forEach(p => pdSelect.innerHTML += `<option value="${p.id}">${p.nama}</option>`);
+
+            // Populate PNS options
+            const pnsSelect = document.getElementById('kdoPnsId');
+            pnsSelect.innerHTML = `<option value="">-- Tanpa Penanggung Jawab --</option>`;
+            db.pns.forEach(p => pnsSelect.innerHTML += `<option value="${p.nip}">${p.nama} (${p.nip})</option>`);
+
+            if (kdoData) {
+                document.getElementById('modalKdoTitle').textContent = 'Ubah Data KDO';
+                document.getElementById('kdoId').value = kdoData.id;
+                document.getElementById('kdoNopol').value = kdoData.nopol;
+                document.getElementById('kdoMerek').value = kdoData.merek;
+                document.getElementById('kdoTipe').value = kdoData.tipe;
+                document.getElementById('kdoTahun').value = kdoData.tahun;
+                document.getElementById('kdoWarna').value = kdoData.warna;
+                document.getElementById('kdoKondisi').value = kdoData.kondisi;
+                document.getElementById('kdoPdId').value = kdoData.pdId;
+                document.getElementById('kdoPnsId').value = kdoData.pnsNip || '';
+            } else {
+                document.getElementById('modalKdoTitle').textContent = 'Tambah Data KDO';
+                document.getElementById('kdoId').value = '';
+            }
+
+            openModal('modalKdo');
+        }
+
+        function saveKdo(e) {
+            e.preventDefault();
+            const id = document.getElementById('kdoId').value;
+            const nopol = document.getElementById('kdoNopol').value.trim().toUpperCase();
+            const merek = document.getElementById('kdoMerek').value.trim();
+            const tipe = document.getElementById('kdoTipe').value.trim();
+            const tahun = parseInt(document.getElementById('kdoTahun').value);
+            const warna = document.getElementById('kdoWarna').value.trim();
+            const kondisi = document.getElementById('kdoKondisi').value;
+            const pdId = document.getElementById('kdoPdId').value;
+            const pnsNip = document.getElementById('kdoPnsId').value;
+
+            if (id) {
+                // Update
+                const index = db.kdo.findIndex(k => k.id === id);
+                if (index !== -1) {
+                    db.kdo[index] = { id, nopol, merek, tipe, tahun, warna, kondisi, pdId, pnsNip };
+                    showToast('Data KDO berhasil diperbarui.', 'success');
+                }
+            } else {
+                // Create
+                const newId = 'KDO-' + Date.now();
+                db.kdo.push({ id: newId, nopol, merek, tipe, tahun, warna, kondisi, pdId, pnsNip });
+                showToast('KDO baru berhasil ditambahkan.', 'success');
+            }
+
+            saveDatabase();
+            closeModal('modalKdo');
+            renderKdoTable();
+        }
+
+        function editKdo(id) {
+            const kdo = db.kdo.find(k => k.id === id);
+            if (kdo) openKdoModal(kdo);
+        }
+
+        function deleteKdo(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus data kendaraan ini?')) {
+                db.kdo = db.kdo.filter(k => k.id !== id);
+                saveDatabase();
+                renderKdoTable();
+                showToast('Data KDO telah dihapus.', 'info');
+            }
+        }
+
+        function viewKdoDetail(id) {
+            const k = db.kdo.find(item => item.id === id);
+            if (!k) return;
+
+            const pd = db.pd.find(p => p.id === k.pdId) || { nama: 'Tidak Terdefinisi' };
+            const pns = db.pns.find(p => p.nip === k.pnsNip) || { nama: 'Belum Ada Penanggung Jawab', nip: '-', jabatan: '-', golongan: '-' };
+
+            document.getElementById('detailNopol').textContent = k.nopol;
+            document.getElementById('detailBadgeKondisi').textContent = k.kondisi;
+            document.getElementById('detailBadgeKondisi').className = `px-2.5 py-1 text-xs font-bold rounded-full ${
+                k.kondisi === 'Baik' ? 'bg-emerald-100 text-emerald-700' :
+                k.kondisi === 'Rusak Ringan' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700'
+            }`;
+
+            document.getElementById('detailMerekTipe').textContent = `${k.merek} ${k.tipe}`;
+            document.getElementById('detailTahunWarna').textContent = `${k.tahun} / ${k.warna || '-'}`;
+            document.getElementById('detailPdNama').textContent = pd.nama;
+
+            document.getElementById('detailPnsNama').textContent = pns.nama;
+            document.getElementById('detailPnsNip').textContent = `NIP: ${pns.nip}`;
+            document.getElementById('detailPnsJabatan').textContent = `${pns.jabatan || '-'} (${pns.golongan || '-'})`;
+
+            openModal('modalDetailKdo');
+        }
+
+        // ==================== PNS MODULE ====================
+        function renderPnsTable() {
+            const search = document.getElementById('pnsSearchInput').value.toLowerCase();
+            const filtered = db.pns.filter(p => p.nama.toLowerCase().includes(search) || p.nip.includes(search));
+
+            const tbody = document.getElementById('pnsTableBody');
+            tbody.innerHTML = '';
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-gray-400">Tidak ada data PNS yang ditemukan.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(p => {
+                const kdoHeld = db.kdo.filter(k => k.pnsNip === p.nip);
+                const kdoBadges = kdoHeld.length > 0 ? 
+                    kdoHeld.map(k => `<span class="inline-block px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded text-xs font-semibold mr-1 mb-1">${k.nopol} (${k.merek})</span>`).join('') :
+                    '<span class="text-gray-400 italic text-xs">Tidak ada KDO</span>';
+
+                const actions = currentUser && currentUser.role === 'admin' ? `
+                    <div class="flex items-center justify-center space-x-2">
+                        <button onclick="editPns('${p.nip}')" class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Ubah Data">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button onclick="deletePns('${p.nip}')" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="Hapus Data">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                ` : `<span class="text-xs text-gray-400 text-center block">-</span>`;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50/60 transition">
+                        <td class="p-4 font-mono font-medium text-gray-800 text-xs">${p.nip}</td>
+                        <td class="p-4 font-semibold text-gray-900">${p.nama}</td>
+                        <td class="p-4 text-gray-700">${p.jabatan}</td>
+                        <td class="p-4 text-gray-600 text-xs">${p.golongan}</td>
+                        <td class="p-4">${kdoBadges}</td>
+                        <td class="p-4 text-center">${actions}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openPnsModal(pnsData = null) {
+            const form = document.getElementById('formPns');
+            form.reset();
+
+            if (pnsData) {
+                document.getElementById('modalPnsTitle').textContent = 'Ubah Data PNS';
+                document.getElementById('pnsOldNip').value = pnsData.nip;
+                document.getElementById('pnsNip').value = pnsData.nip;
+                document.getElementById('pnsNama').value = pnsData.nama;
+                document.getElementById('pnsJabatan').value = pnsData.jabatan;
+                document.getElementById('pnsGolongan').value = pnsData.golongan;
+            } else {
+                document.getElementById('modalPnsTitle').textContent = 'Tambah Data PNS Baru';
+                document.getElementById('pnsOldNip').value = '';
+            }
+            openModal('modalPns');
+        }
+
+        function savePns(e) {
+            e.preventDefault();
+            const oldNip = document.getElementById('pnsOldNip').value;
+            const nip = document.getElementById('pnsNip').value.trim();
+            const nama = document.getElementById('pnsNama').value.trim();
+            const jabatan = document.getElementById('pnsJabatan').value.trim();
+            const golongan = document.getElementById('pnsGolongan').value;
+
+            if (oldNip) {
+                // Update
+                const idx = db.pns.findIndex(p => p.nip === oldNip);
+                if (idx !== -1) {
+                    db.pns[idx] = { nip, nama, jabatan, golongan };
+                    // Cascade NIP update on KDO if NIP changed
+                    if (oldNip !== nip) {
+                        db.kdo.forEach(k => { if (k.pnsNip === oldNip) k.pnsNip = nip; });
+                    }
+                    showToast('Data PNS berhasil diperbarui.', 'success');
+                }
+            } else {
+                // Check unique NIP
+                if (db.pns.some(p => p.nip === nip)) {
+                    showToast('NIP sudah terdaftar di sistem!', 'error');
+                    return;
+                }
+                db.pns.push({ nip, nama, jabatan, golongan });
+                showToast('PNS baru berhasil ditambahkan.', 'success');
+            }
+
+            saveDatabase();
+            closeModal('modalPns');
+            renderPnsTable();
+        }
+
+        function editPns(nip) {
+            const p = db.pns.find(item => item.nip === nip);
+            if (p) openPnsModal(p);
+        }
+
+        function deletePns(nip) {
+            // Check if holding KDO
+            const assigned = db.kdo.filter(k => k.pnsNip === nip);
+            if (assigned.length > 0) {
+                if (!confirm(`Pegawai ini saat ini bertanggung jawab atas ${assigned.length} KDO. Menghapus PNS ini akan mengosongkan status penanggung jawab pada KDO tersebut. Lanjutkan?`)) {
+                    return;
+                }
+                // Unassign
+                db.kdo.forEach(k => { if (k.pnsNip === nip) k.pnsNip = ''; });
+            }
+
+            db.pns = db.pns.filter(p => p.nip !== nip);
+            saveDatabase();
+            renderPnsTable();
+            showToast('Data PNS berhasil dihapus.', 'info');
+        }
+
+        // ==================== PERANGKAT DAERAH (PD) MODULE ====================
+        function renderPdTable() {
+            const search = document.getElementById('pdSearchInput').value.toLowerCase();
+            const filtered = db.pd.filter(p => p.nama.toLowerCase().includes(search) || p.id.toLowerCase().includes(search));
+
+            const tbody = document.getElementById('pdTableBody');
+            tbody.innerHTML = '';
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-gray-400">Tidak ada data Perangkat Daerah.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(p => {
+                const count = db.kdo.filter(k => k.pdId === p.id).length;
+                const actions = currentUser && currentUser.role === 'admin' ? `
+                    <div class="flex items-center justify-center space-x-2">
+                        <button onclick="editPd('${p.id}')" class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Ubah Data">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button onclick="deletePd('${p.id}')" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="Hapus Data">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                ` : `<span class="text-xs text-gray-400 text-center block">-</span>`;
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50/60 transition">
+                        <td class="p-4 font-mono font-bold text-gray-800 text-xs">${p.id}</td>
+                        <td class="p-4 font-semibold text-gray-900">${p.nama}</td>
+                        <td class="p-4 text-gray-600 text-xs">${p.alamat || '-'} <br><span class="text-gray-400">${p.kontak || ''}</span></td>
+                        <td class="p-4"><span class="px-2.5 py-1 text-xs font-bold bg-slate-100 text-slate-700 rounded-full">${count} Unit</span></td>
+                        <td class="p-4 text-center">${actions}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openPdModal(pdData = null) {
+            const form = document.getElementById('formPd');
+            form.reset();
+
+            if (pdData) {
+                document.getElementById('modalPdTitle').textContent = 'Ubah Perangkat Daerah';
+                document.getElementById('pdOldKode').value = pdData.id;
+                document.getElementById('pdKode').value = pdData.id;
+                document.getElementById('pdNama').value = pdData.nama;
+                document.getElementById('pdAlamat').value = pdData.alamat || '';
+                document.getElementById('pdKontak').value = pdData.kontak || '';
+            } else {
+                document.getElementById('modalPdTitle').textContent = 'Tambah Perangkat Daerah Baru';
+                document.getElementById('pdOldKode').value = '';
+            }
+            openModal('modalPd');
+        }
+
+        function savePd(e) {
+            e.preventDefault();
+            const oldKode = document.getElementById('pdOldKode').value;
+            const id = document.getElementById('pdKode').value.trim().toUpperCase();
+            const nama = document.getElementById('pdNama').value.trim();
+            const alamat = document.getElementById('pdAlamat').value.trim();
+            const kontak = document.getElementById('pdKontak').value.trim();
+
+            if (oldKode) {
+                const idx = db.pd.findIndex(p => p.id === oldKode);
+                if (idx !== -1) {
+                    db.pd[idx] = { id, nama, alamat, kontak };
+                    if (oldKode !== id) {
+                        db.kdo.forEach(k => { if (k.pdId === oldKode) k.pdId = id; });
+                    }
+                    showToast('Perangkat Daerah diperbarui.', 'success');
+                }
+            } else {
+                if (db.pd.some(p => p.id === id)) {
+                    showToast('Kode Perangkat Daerah sudah digunakan!', 'error');
+                    return;
+                }
+                db.pd.push({ id, nama, alamat, kontak });
+                showToast('Perangkat Daerah baru disimpan.', 'success');
+            }
+
+            saveDatabase();
+            closeModal('modalPd');
+            renderPdTable();
+        }
+
+        function editPd(id) {
+            const p = db.pd.find(item => item.id === id);
+            if (p) openPdModal(p);
+        }
+
+        function deletePd(id) {
+            const assigned = db.kdo.filter(k => k.pdId === id);
+            if (assigned.length > 0) {
+                showToast(`Tidak dapat menghapus PD ini karena terdapat ${assigned.length} KDO yang terikat.`, 'error');
+                return;
+            }
+
+            if (confirm('Apakah Anda yakin menghapus Perangkat Daerah ini?')) {
+                db.pd = db.pd.filter(p => p.id !== id);
+                saveDatabase();
+                renderPdTable();
+                showToast('Perangkat Daerah telah dihapus.', 'info');
+            }
+        }
+
+        // ==================== USER MANAGEMENT MODULE ====================
+        function renderUserTable() {
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = '';
+
+            db.users.forEach(u => {
+                const pns = db.pns.find(p => p.nip === u.pnsNip) || { nama: '-' };
+                const roleBadge = u.role === 'admin' ? 
+                    '<span class="px-2.5 py-1 text-xs font-bold bg-purple-100 text-purple-700 rounded-full">Admin</span>' :
+                    '<span class="px-2.5 py-1 text-xs font-bold bg-blue-100 text-blue-700 rounded-full">Penanggung Jawab (PNS)</span>';
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50/60 transition">
+                        <td class="p-4 font-mono font-medium text-gray-800 text-xs">${u.username}</td>
+                        <td class="p-4 font-semibold text-gray-900">${u.nama}</td>
+                        <td class="p-4">${roleBadge}</td>
+                        <td class="p-4 text-gray-600 text-xs">${pns.nama}</td>
+                        <td class="p-4 text-center">
+                            <div class="flex items-center justify-center space-x-2">
+                                <button onclick="editUser('${u.username}')" class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Ubah Akun">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                ${u.username !== 'admin' ? `
+                                <button onclick="deleteUser('${u.username}')" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="Hapus Akun">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openUserModal(userData = null) {
+            const form = document.getElementById('formUser');
+            form.reset();
+
+            // Populate PNS select
+            const pnsSelect = document.getElementById('userPnsId');
+            pnsSelect.innerHTML = `<option value="">-- Tidak Terhubung ke Data PNS --</option>`;
+            db.pns.forEach(p => pnsSelect.innerHTML += `<option value="${p.nip}">${p.nama} (${p.nip})</option>`);
+
+            if (userData) {
+                document.getElementById('modalUserTitle').textContent = 'Ubah Pengguna';
+                document.getElementById('userOldUsername').value = userData.username;
+                document.getElementById('userUsername').value = userData.username;
+                document.getElementById('userNama').value = userData.nama;
+                document.getElementById('userRole').value = userData.role;
+                document.getElementById('userPnsId').value = userData.pnsNip || '';
+                document.getElementById('userPassword').required = false;
+                document.getElementById('pwdNotice').classList.remove('hidden');
+            } else {
+                document.getElementById('modalUserTitle').textContent = 'Tambah Akun Pengguna Baru';
+                document.getElementById('userOldUsername').value = '';
+                document.getElementById('userPassword').required = true;
+                document.getElementById('pwdNotice').classList.add('hidden');
+            }
+
+            openModal('modalUser');
+        }
+
+        function saveUser(e) {
+            e.preventDefault();
+            const oldUsername = document.getElementById('userOldUsername').value;
+            const username = document.getElementById('userUsername').value.trim();
+            const nama = document.getElementById('userNama').value.trim();
+            const password = document.getElementById('userPassword').value.trim();
+            const role = document.getElementById('userRole').value;
+            const pnsNip = document.getElementById('userPnsId').value;
+
+            if (oldUsername) {
+                const idx = db.users.findIndex(u => u.username === oldUsername);
+                if (idx !== -1) {
+                    const newPwd = password !== '' ? password : db.users[idx].password;
+                    db.users[idx] = { username, password: newPwd, nama, role, pnsNip };
+                    showToast('Pengguna berhasil diperbarui.', 'success');
+                }
+            } else {
+                if (db.users.some(u => u.username === username)) {
+                    showToast('Username sudah digunakan!', 'error');
+                    return;
+                }
+                db.users.push({ username, password, nama, role, pnsNip });
+                showToast('Akun baru berhasil dibuat.', 'success');
+            }
+
+            saveDatabase();
+            closeModal('modalUser');
+            renderUserTable();
+        }
+
+        function editUser(username) {
+            const u = db.users.find(item => item.username === username);
+            if (u) openUserModal(u);
+        }
+
+        function deleteUser(username) {
+            if (username === 'admin') {
+                showToast('Akun default Administrator tidak dapat dihapus!', 'error');
+                return;
+            }
+            if (confirm('Apakah Anda yakin menghapus pengguna ini?')) {
+                db.users = db.users.filter(u => u.username !== username);
+                saveDatabase();
+                renderUserTable();
+                showToast('Akun telah dihapus.', 'info');
+            }
+        }
+
+        // ==================== EXPORT & REKAPITULASI ====================
+        function exportKdoCsv() {
+            let csv = 'Nomor Polisi,Merek,Tipe,Tahun,Warna,Kondisi,Perangkat Daerah,Penanggung Jawab\n';
+            db.kdo.forEach(k => {
+                const pd = db.pd.find(p => p.id === k.pdId) || { nama: '-' };
+                const pns = db.pns.find(p => p.nip === k.pnsNip) || { nama: '-' };
+                csv += `"${k.nopol}","${k.merek}","${k.tipe}","${k.tahun}","${k.warna}","${k.kondisi}","${pd.nama}","${pns.nama}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute('download', `Laporan_KDO_BMD_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showToast('File CSV berhasil diunduh.', 'success');
+        }
+
+        function exportSummaryReport() {
+            window.print();
+        }
+    </script>
+</body>
+</html>
